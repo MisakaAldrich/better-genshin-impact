@@ -16,6 +16,7 @@ public class CombatScriptHandler : IActionHandler
     {
         if (waypointForTrack is { CombatScript: not null })
         {
+            RunnerContext.Instance.ClearCombatScenes(); // 执行简易策略脚本前，清理当前队伍，解决使用JS脚本更换队伍后报错要求的角色不存在
             Logger.LogInformation("执行 {Text}", "简易策略脚本");
             var combatScript = waypointForTrack.CombatScript;
             var combatScenes = await RunnerContext.Instance.GetCombatScenes(ct);
