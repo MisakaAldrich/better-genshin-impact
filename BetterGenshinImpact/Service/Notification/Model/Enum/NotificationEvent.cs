@@ -21,6 +21,7 @@ public class NotificationEvent(string code, string msg)
     public static readonly NotificationEvent DailyReward = new("daily.reward", "检查每日奖励领取状态");
     public static readonly NotificationEvent JsCustom = new("js.custom", "JS自定义事件");
     public static readonly NotificationEvent JsError = new("js.error", "JS运行时错误");
+    public static readonly NotificationEvent TpError = new("tp.error", "大地图传送运行时错误");
     
     public string Code { get; private set; } = code;
     public string Msg { get; private set; } = msg;

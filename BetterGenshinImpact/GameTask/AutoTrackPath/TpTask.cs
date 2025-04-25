@@ -25,6 +25,8 @@ using BetterGenshinImpact.GameTask.Model.Area;
 using BetterGenshinImpact.GameTask.QuickTeleport.Assets;
 using BetterGenshinImpact.Helpers;
 using BetterGenshinImpact.Helpers.Extensions;
+using BetterGenshinImpact.Service.Notification;
+using BetterGenshinImpact.Service.Notification.Model.Enum;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
@@ -217,6 +219,7 @@ public class TpTask(CancellationToken ct)
             }
             else
             {
+                Notify.Event(NotificationEvent.TpError).Error("目标传送点有相近传送点，可能传送失败。如果失败请到设置-大地图地图传送设置开启地图缩放");
                 Logger.LogInformation("目标传送点有相近传送点，可能传送失败。如果失败请到设置-大地图地图传送设置开启地图缩放");
                 // TODO 部分无法区分点位强制缩放，即使没有zoomEnabled。
             }
@@ -230,6 +233,7 @@ public class TpTask(CancellationToken ct)
             if (IsPointInBigMapWindow(bigMapInAllMapRect, x, y)) break;
             if (retryCount++ >= 5) // 防止死循环
             {
+                Notify.Event(NotificationEvent.TpError).Error("多次尝试未移动到目标传送点，传送失败");
                 Logger.LogWarning("多次尝试未移动到目标传送点，传送失败");
                 throw new Exception("多次尝试未移动到目标传送点，传送失败");
             }
@@ -388,6 +392,7 @@ public class TpTask(CancellationToken ct)
             catch (TpPointNotActivate e)
             {
                 // 传送点未激活或不存在 按ESC回到大地图界面
+                Notify.Event(NotificationEvent.TpError).Error("传送点未激活或不存在 按ESC回到大地图界面");
                 Simulation.SendInput.Keyboard.KeyPress(User32.VK.VK_ESCAPE);
                 await Delay(300, ct);
                 // throw; // 不抛出异常，继续重试
@@ -399,6 +404,7 @@ public class TpTask(CancellationToken ct)
             }
             catch (Exception e)
             {
+                Notify.Event(NotificationEvent.TpError).Error("传送失败，",e);
                 Logger.LogError("传送失败，重试 {I} 次", i + 1);
                 Logger.LogDebug(e, "传送失败，重试 {I} 次", i + 1);
             }
@@ -495,6 +501,7 @@ public class TpTask(CancellationToken ct)
             {
                 if (++exceptionTimes > 2)
                 {
+                    Notify.Event(NotificationEvent.TpError).Error("多次中心点识别失败，重新传送");
                     throw new Exception("多次中心点识别失败，重新传送");
                 }
                 Logger.LogWarning("中心点识别失败，预测移动的距离");
